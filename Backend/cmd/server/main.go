@@ -1,42 +1,57 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	socketio "github.com/googollee/go-socket.io"
 )
+
+type Message struct {
+	Username string `json:"username"`
+	Text     string `json:"text"`
+	File     string `json:"file"`
+}
+
+var messages []Message
 
 func main() {
 	router := gin.Default()
+	router.Use(static.Serve("/", static.LocalFile("./frontend/build", true)))
 
-	server := socketio.NewServer(nil)
-
-	server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		fmt.Println("connected:", s.ID())
-		return nil
-	})
-
-	server.OnEvent("/", "message", func(s socketio.Conn, msg string) {
-		fmt.Println("message:", msg)
-		server.BroadcastToRoom("/", "chat", "message", msg)
-	})
-
-	server.OnDisconnect("/", func(c socketio.Conn, reason string) {
-		fmt.Println("closed", reason)
-	})
-
-	go server.Serve()
-	defer server.Close()
-
-	router.GET("/socket.io/*any", gin.WrapH(server))
-	router.POST("/socket.io/*any", gin.WrapH(server))
-
-	router.Static("/static", "./static")
-	router.GET("/", func(c *gin.Context) {
-		c.File("./static/index.html")
-	})
+	router.GET("/api/messages", getMessages)
+	router.POST("/api/messages", postMessage)
+	router.POST("/api/upload", uploadFile)
 
 	router.Run(":8080")
+}
+
+func getMessages(c *gin.Context) {
+	c.JSON(http.StatusOK, messages)
+}
+
+func postMessage(c *gin.Context) {
+	var message Message
+	if err := c.ShouldBindJSON(&message); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	messages = append(messages, message)
+	c.JSON(http.StatusCreated, message)
+}
+
+func uploadFile(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	filename := filepath.Base(file.Filename)
+	if err := c.SaveUploadedFile(file, filepath.Join("./uploads", filename)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"filename": filename})
 }
