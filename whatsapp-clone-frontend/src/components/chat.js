@@ -20,7 +20,7 @@ const Input = styled('input')({
     display: 'none',
 });
 
-const socket = io('http://192.168.1.100:8080'); // Replace with your backend IP
+const socket = io('http://localhost:8080'); // Replace with your backend IP
 
 function Chat() {
     const [messages, setMessages] = useState([]);
@@ -111,7 +111,7 @@ function Chat() {
                                 <ListItemText
                                     primary={msg.text || (
                                         <img
-                                            src={`http://192.168.1.100:8080/uploads/${msg.file}`}
+                                            src={`http://localhost:8080/uploads/${msg.file}`}
                                             alt="Uploaded content"
                                             style={{ maxWidth: '100%' }}
                                         />
