@@ -101,6 +101,7 @@ function Chat() {
 
     return (
         <Container>
+<<<<<<< HEAD
             <Box component={Paper} sx={{ p: 2, mt: 4 }}>
                 <Typography variant="h6">Chat</Typography>
                 <List sx={{ maxHeight: 300, overflow: 'auto' }}>
@@ -113,6 +114,50 @@ function Chat() {
                                         {msg.file}
                                     </a>
                                 )}
+=======
+            <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+                <Paper elevation={3} style={{ padding: '20px', width: '100%', maxWidth: '500px' }}>
+                    <List>
+                        {messages.map((msg, index) => (
+                            <ListItem key={index}>
+                                <ListItemText
+                                    primary={msg.text || (
+                                        <img
+                                            src={`http://localhost:8080/uploads/${msg.file}`}
+                                            alt="Uploaded content"
+                                            style={{ maxWidth: '100%' }}
+                                        />
+                                    )}
+                                    secondary={msg.username}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Box display="flex" mt={2}>
+                        <TextField
+                            label="Message"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            variant="outlined"
+                            fullWidth
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    sendMessage();
+                                }
+                            }}
+                        />
+                        <Button variant="contained" color="primary" onClick={sendMessage}>
+                            Send
+                        </Button>
+                    </Box>
+                    <Box display="flex" mt={2}>
+                        <label htmlFor="icon-button-file">
+                            <Input
+                                accept="image/*,video/*,application/pdf"
+                                id="icon-button-file"
+                                type="file"
+                                onChange={handleFileChange}
+>>>>>>> b3ba69d0539ecc70386faa9c23637d089c832d61
                             />
                         </ListItem>
                     ))}

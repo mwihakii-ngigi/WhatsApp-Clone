@@ -4,6 +4,7 @@ import (
 	"whatsapp-clone/pkg/handlers"
 	"whatsapp-clone/pkg/websocket"
 
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
